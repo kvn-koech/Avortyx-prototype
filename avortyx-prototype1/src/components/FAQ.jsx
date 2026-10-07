@@ -15,7 +15,7 @@ export default function FAQ() {
           <span className="mono text-cyan">FAQ</span>
           <div className="line flex-1" />
         </div>
-        <h2 className="mb-10 text-5xl font-light leading-[.92] tracking-[-.06em]">
+        <h2 className="mb-10 text-5xl font-light leading-[.92] tracking-[-.03em]">
           Frequently asked <span className="gradient-text">questions</span>
         </h2>
         <div className="border-t border-white/10">

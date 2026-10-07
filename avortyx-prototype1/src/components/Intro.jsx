@@ -22,7 +22,7 @@ export default function Intro() {
   if (gone) return null;
   return (
     <div id="intro" className="fixed inset-0 z-[100] flex items-center justify-center bg-ground transition-opacity duration-700" style={fading ? { opacity: 0 } : undefined}>
-      <div id="introText" ref={textRef} className="gradient-text text-5xl font-light tracking-[-.07em] opacity-0">avortyx</div>
+      <div id="introText" ref={textRef} className="gradient-text text-5xl font-light tracking-[-.035em] opacity-0">avortyx</div>
     </div>
   );
 }

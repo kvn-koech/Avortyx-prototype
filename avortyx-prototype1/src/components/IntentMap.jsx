@@ -138,7 +138,7 @@ export default function IntentMap({ indexRef, className = '' }) {
     });
 
     // markets
-    x.font = '500 ' + 9.5 * d + 'px Geist Mono, monospace';
+    x.font = '500 ' + 9.5 * d + 'px JetBrains Mono, monospace';
     CITIES.forEach((cty, i) => {
       const cx = X(CXY[i][0]), cy = Y(CXY[i][1]);
       const hot = cty[3] > 85;

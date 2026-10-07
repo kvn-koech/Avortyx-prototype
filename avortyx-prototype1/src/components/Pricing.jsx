@@ -20,7 +20,7 @@ export default function Pricing() {
           <div className="line flex-1" />
         </div>
         <div className="mb-14 grid gap-10 lg:grid-cols-2">
-          <h2 className="max-w-[16ch] text-5xl font-light leading-[.92] tracking-[-.06em]">
+          <h2 className="max-w-[16ch] text-5xl font-light leading-[.92] tracking-[-.03em]">
             Simple, <span className="gradient-text">transparent</span> pricing
           </h2>
           <p className="max-w-[44ch] self-end leading-8 text-muted">

@@ -39,7 +39,7 @@ export default function LiveRouting() {
             <Globe className="absolute inset-0 h-full w-full" />
           </div>
           <div className="reveal">
-            <h2 className="max-w-[14ch] text-5xl font-light leading-[.92] tracking-[-.06em]">
+            <h2 className="max-w-[14ch] text-5xl font-light leading-[.92] tracking-[-.03em]">
               Watch every call <span className="gradient-text">land.</span>
             </h2>
             <p className="mt-6 max-w-[44ch] leading-8 text-muted">

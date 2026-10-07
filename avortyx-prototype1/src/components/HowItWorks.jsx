@@ -12,7 +12,7 @@ export default function HowItWorks() {
           <span className="mono text-cyan">How it works</span>
           <div className="line flex-1" />
         </div>
-        <h2 className="reveal mb-20 max-w-[18ch] text-5xl font-light leading-[.92] tracking-[-.06em]">
+        <h2 className="reveal mb-20 max-w-[18ch] text-5xl font-light leading-[.92] tracking-[-.03em]">
           From first ring to <span className="gradient-text">paid call</span> in seconds
         </h2>
         <div className="relative grid gap-6 lg:grid-cols-3">

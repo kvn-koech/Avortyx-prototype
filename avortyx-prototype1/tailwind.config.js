@@ -7,8 +7,8 @@ export default {
         emerald: '#00ca72', muted: '#aeb9e1', panel: '#101935',
       },
       fontFamily: { 
-        sans: ['Inter', 'system-ui', 'sans-serif'], 
-        display: ['Outfit', 'system-ui', 'sans-serif'],
+        sans: ['Geist', 'system-ui', 'sans-serif'], 
+        display: ['Geist', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'] 
       },
     },

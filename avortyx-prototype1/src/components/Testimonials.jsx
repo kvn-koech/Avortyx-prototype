@@ -74,7 +74,7 @@ export default function Testimonials() {
           <span className="mono text-cyan">Testimonials</span>
           <div className="line flex-1" />
         </div>
-        <h2 className="mb-10 max-w-[16ch] text-5xl font-light leading-[.92] tracking-[-.06em]">
+        <h2 className="mb-10 max-w-[16ch] text-5xl font-light leading-[.92] tracking-[-.03em]">
           Loved by <span className="gradient-text">performance marketers</span>
         </h2>
 
