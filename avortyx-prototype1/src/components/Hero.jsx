@@ -4,7 +4,81 @@ import { useCanvasLoop } from '../hooks';
 import Tilt from './Tilt';
 import { useModal } from '../modalContext';
 
-const COLORS = ['#6c72ff', '#57c3ff', '#00ca72'];
+function drawDataOcean(c, ctx, dpr, s) {
+  ctx.clearRect(0, 0, c.width, c.height);
+  if (!s.init) {
+    s.init = true;
+    s.t = 0;
+  }
+  s.t += 0.002;
+
+  const cx = c.width / 2;
+  const cy = c.height / 2 + 180 * dpr; // Push it down into the floor
+  const fov = 500 * dpr;
+  const cols = 35;
+  const rows = 35;
+  const spacingX = 85 * dpr;
+  const spacingZ = 85 * dpr;
+
+  // Pre-calculate points to build the mesh
+  let pts = [];
+  for (let iz = 0; iz < rows; iz++) {
+    let row = [];
+    let z = iz * spacingZ + 120 * dpr;
+    for (let ix = 0; ix < cols; ix++) {
+      let x = (ix - cols / 2) * spacingX;
+      let d = Math.sqrt(x * x + z * z);
+      
+      // Complex undulating wave dynamics
+      let y = Math.sin(d * 0.0025 - s.t * 3) * 70 * dpr 
+            + Math.sin(x * 0.015 + s.t * 1.5) * 45 * dpr 
+            + Math.cos(z * 0.01 - s.t) * 55 * dpr;
+
+      let scale = fov / z;
+      row.push({
+        x: cx + x * scale,
+        y: cy + y * scale,
+        alpha: Math.max(0, Math.min(1, (2600 * dpr - z) / (2000 * dpr)))
+      });
+    }
+    pts.push(row);
+  }
+
+  // Draw the wireframe mesh
+  ctx.lineWidth = 1 * dpr;
+  ctx.strokeStyle = '#57c3ff';
+  
+  for (let iz = 0; iz < rows; iz++) {
+    for (let ix = 0; ix < cols; ix++) {
+      let p = pts[iz][ix];
+      if (p.alpha <= 0) continue;
+      
+      ctx.globalAlpha = p.alpha * 0.25;
+      
+      // Add glowing routing nodes at specific intersections
+      if (ix % 4 === 0 && iz % 4 === 0) {
+          ctx.fillStyle = '#00ca72';
+          ctx.globalAlpha = p.alpha * 0.7;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 1.8 * dpr, 0, 7);
+          ctx.fill();
+          ctx.globalAlpha = p.alpha * 0.25;
+      }
+      
+      ctx.beginPath();
+      if (ix < cols - 1) {
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(pts[iz][ix+1].x, pts[iz][ix+1].y);
+      }
+      if (iz < rows - 1) {
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(pts[iz+1][ix].x, pts[iz+1][ix].y);
+      }
+      ctx.stroke();
+    }
+  }
+}
+
 
 
 function drawGraph(c, ctx, dpr, s) {
@@ -123,11 +197,13 @@ function useLive() {
 export default function Hero() {
   const { open } = useModal();
   const live = useLive();
+  const streamRef = useRef(null);
   const graphRef = useRef(null);
+  useCanvasLoop(streamRef, drawDataOcean);
   useCanvasLoop(graphRef, drawGraph);
   return (
     <section className="grid-bg relative flex min-h-[100svh] items-center overflow-hidden px-6 pb-[clamp(3rem,6vw,5rem)] pt-[clamp(6rem,8vw,7.5rem)] lg:px-10">
-
+      <canvas ref={streamRef} className="absolute inset-0 h-full w-full opacity-[0.35]" />
       <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-[120px] pointer-events-none" aria-hidden="true" />
       <div className="premium-glow" aria-hidden="true" />
       <div className="relative mx-auto grid w-full max-w-[1320px] -mt-2 lg:-mt-6 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
