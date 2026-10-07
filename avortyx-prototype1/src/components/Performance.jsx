@@ -1,0 +1,6 @@
+
+export default function Performance() {
+  return (
+    <section id="performance" className="section-wash border-t border-white/10 px-6 py-[clamp(6rem,12vw,10rem)] lg:px-10"><div className="mx-auto max-w-[1320px]"><div className="mb-14 flex items-center gap-4 reveal"><span className="mono text-cyan">03 · Performance</span><div className="line flex-1" /></div><div className="grid grid-cols-2 border-l border-t border-white/10 md:grid-cols-4"><div className="border-b border-r border-white/10 p-8"><div className="text-5xl font-light"><span className="text-indigo">99.9</span>%</div><div className="mono mt-4 text-muted">Delivery reliability</div></div><div className="border-b border-r border-white/10 p-8"><div className="text-5xl font-light"><span className="text-cyan">14.8</span>ms</div><div className="mono mt-4 text-muted">Routing latency</div></div><div className="border-b border-r border-white/10 p-8"><div className="text-5xl font-light"><span className="text-indigo">94.4</span>%</div><div className="mono mt-4 text-muted">Match win rate</div></div><div className="border-b border-r border-white/10 p-8"><div className="text-5xl font-light"><span className="text-cyan">24/7</span></div><div className="mono mt-4 text-muted">Network observability</div></div></div></div></section>
+  );
+}
