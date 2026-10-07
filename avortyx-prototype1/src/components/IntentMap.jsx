@@ -138,7 +138,7 @@ export default function IntentMap({ indexRef, className = '' }) {
     });
 
     // markets
-    x.font = '500 ' + 9.5 * d + 'px JetBrains Mono, monospace';
+    x.font = '500 ' + 9.5 * d + 'px Geist Mono, monospace';
     CITIES.forEach((cty, i) => {
       const cx = X(CXY[i][0]), cy = Y(CXY[i][1]);
       const hot = cty[3] > 85;
@@ -175,9 +175,9 @@ export default function IntentMap({ indexRef, className = '' }) {
       x.fill();
       x.stroke();
       x.fillStyle = '#fff';
-      x.font = '600 ' + 12 * d + 'px Manrope, sans-serif';
+      x.font = '600 ' + 12 * d + 'px Geist, sans-serif';
       x.fillText(cty[0] + ' · ' + cty[5], bx + 12 * d, by + 20 * d);
-      x.font = '400 ' + 10.5 * d + 'px Manrope, sans-serif';
+      x.font = '400 ' + 10.5 * d + 'px Geist, sans-serif';
       x.fillStyle = '#aeb9e1';
       x.fillText('Intent score', bx + 12 * d, by + 38 * d);
       x.fillText('Calls / hour', bx + 12 * d, by + 54 * d);
