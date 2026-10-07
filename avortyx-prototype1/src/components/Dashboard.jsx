@@ -46,8 +46,8 @@ export default function Dashboard() {
               <div className="grid-bg absolute inset-0 opacity-60" />
               <IntentMap indexRef={idxRef} className="relative block h-[300px] w-full cursor-crosshair sm:h-[360px]" />
               <div className="absolute left-4 top-4 flex gap-2">
-                <span className="mono rounded-full border border-emerald/30 bg-ground/70 px-3 py-1 text-emerald backdrop-blur">19 live markets</span>
-                <span className="mono hidden rounded-full border border-white/15 bg-ground/70 px-3 py-1 text-muted backdrop-blur sm:block">Hover a market</span>
+                <span className="mono rounded-full border border-emerald/30 bg-ground/70 px-3 py-1 text-emerald">19 live markets</span>
+                <span className="mono hidden rounded-full border border-white/15 bg-ground/70 px-3 py-1 text-muted sm:block">Hover a market</span>
               </div>
             </div>
               <div className="hidden rounded-xl border border-white/10 bg-white/[.03] p-4 md:block">

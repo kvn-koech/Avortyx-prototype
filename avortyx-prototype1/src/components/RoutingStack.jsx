@@ -22,7 +22,7 @@ export default function RoutingStack() {
           {layers.map((l, i) => (
             <div
               key={l.k}
-              className={'stack-layer absolute inset-0 rounded-3xl border backdrop-blur ' + (on === i ? 'is-on' : '')}
+              className={'stack-layer absolute inset-0 rounded-3xl border ' + (on === i ? 'is-on' : '')}
               style={{ '--z': i * 62 + 'px', '--c': l.c, animationDelay: -i * 0.9 + 's' }}
             >
               <div className="absolute inset-3 rounded-2xl border border-white/10 [background-image:linear-gradient(rgba(174,185,225,.12)_1px,transparent_1px),linear-gradient(90deg,rgba(174,185,225,.12)_1px,transparent_1px)] [background-size:25px_25px]" />

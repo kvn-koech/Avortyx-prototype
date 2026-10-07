@@ -20,22 +20,41 @@ export function useReveal() {
   }, []);
 }
 
-// Runs draw(canvas, ctx, dpr, t) every animation frame; the canvas is resized to its CSS box each frame
+// Runs draw(canvas, ctx, dpr, t) every frame while the canvas is on screen; resizes only when its box changes
 export function useCanvasLoop(ref, draw) {
   useEffect(() => {
     const c = ref.current;
     const ctx = c.getContext('2d');
-    let raf;
+    let raf = 0;
+    let visible = false;
     const state = { t: 0 };
     const loop = () => {
       const dpr = Math.min(window.devicePixelRatio, 2);
-      c.width = c.clientWidth * dpr;
-      c.height = c.clientHeight * dpr;
+      const w = Math.round(c.clientWidth * dpr);
+      const h = Math.round(c.clientHeight * dpr);
+      if (c.width !== w || c.height !== h) {
+        c.width = w;
+        c.height = h;
+      } else {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+      }
       draw(c, ctx, dpr, state);
       raf = requestAnimationFrame(loop);
     };
-    loop();
-    return () => cancelAnimationFrame(raf);
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        visible = e.isIntersecting;
+        cancelAnimationFrame(raf);
+        if (visible) raf = requestAnimationFrame(loop);
+      },
+      { rootMargin: '80px' },
+    );
+    obs.observe(c);
+    return () => {
+      obs.disconnect();
+      cancelAnimationFrame(raf);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 }
