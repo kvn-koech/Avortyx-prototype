@@ -17,10 +17,6 @@ export default function Footer() {
             <Logo size={34} /> AVORTYX
           </div>
           <p className="mt-6 max-w-xs text-sm leading-7 text-muted">Real-time call scoring, routing and analytics for pay-per-call networks.</p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <span className="mono border border-cyan/30 px-3 py-2 text-cyan">Illustrative demo</span>
-            <span className="mono border border-emerald/30 px-3 py-2 text-emerald">No live traffic</span>
-          </div>
           <div className="mono mt-6 flex gap-5 text-muted">
             <button type="button" onClick={() => open('social')} className="hover:text-white">Telegram</button>
             <button type="button" onClick={() => open('social')} className="hover:text-white">X</button>

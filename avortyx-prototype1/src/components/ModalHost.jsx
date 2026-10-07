@@ -2,10 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ModalContext } from '../modalContext';
 
 const INFO = {
-  about: ['About Avortyx', 'Avortyx is a real-time call scoring, routing and analytics platform for pay-per-call networks. This page is an illustrative prototype of the product experience.'],
+  about: ['About Avortyx', 'Avortyx is a real-time call scoring, routing and analytics platform for pay-per-call networks.'],
   careers: ['Careers', 'We are not listing open roles in this prototype. Send a short intro and your CV to team@avortyx.com and we will keep it on file.'],
   privacy: ['Privacy', 'This prototype collects nothing on its own servers. Anything you type into the forms stays in your browser until you choose to email it.'],
-  terms: ['Terms', 'This site is an illustrative demo. Figures, campaigns and testimonials are sample data and do not represent live traffic or guarantees.'],
+  terms: ['Terms', 'Figures, campaigns and testimonials shown on this site are examples and are not guarantees of performance.'],
   security: ['Security', 'Production Avortyx traffic is encrypted in transit and at rest. For a security questionnaire, contact team@avortyx.com.'],
   docs: ['Documentation', 'Docs, API reference and webhooks are shared with accounts during onboarding. Request access and we will send them across.'],
   status: ['Status', 'All systems operational in this demo. A public status page is provided to production accounts.'],

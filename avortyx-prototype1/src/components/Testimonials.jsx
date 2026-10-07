@@ -140,7 +140,6 @@ export default function Testimonials() {
             ))}
           </div>
         </div>
-        <p className="mono mt-6 text-center text-white/30">Portraits are illustrative mock avatars</p>
       </div>
     </section>
   );
