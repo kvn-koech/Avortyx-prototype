@@ -1,12 +1,14 @@
 import Logo from './Logo';
+import { useModal } from '../modalContext';
 const cols = [
   { title: 'Product', links: [['Live monitor', '#live'], ['Routing rules', '#platform'], ['Marketplace', '#platform'], ['Pricing', '#pricing']] },
-  { title: 'Resources', links: [['Documentation', '#docs'], ['API reference', '#docs'], ['Webhooks', '#docs'], ['Status', '#docs']] },
-  { title: 'Company', links: [['About', '#top'], ['Customers', '#customers'], ['Careers', '#top'], ['Contact', 'mailto:team@avortyx.com']] },
-  { title: 'Legal', links: [['Privacy', '#top'], ['Terms', '#top'], ['TCPA', '#faq'], ['Security', '#top']] },
+  { title: 'Resources', links: [['Documentation', 'modal:docs'], ['API reference', 'modal:docs'], ['Webhooks', 'modal:docs'], ['Status', 'modal:status']] },
+  { title: 'Company', links: [['About', 'modal:about'], ['Customers', '#customers'], ['Careers', 'modal:careers'], ['Contact', 'mailto:team@avortyx.com']] },
+  { title: 'Legal', links: [['Privacy', 'modal:privacy'], ['Terms', 'modal:terms'], ['TCPA', '#faq'], ['Security', 'modal:security']] },
 ];
 
 export default function Footer() {
+  const { open } = useModal();
   return (
     <footer id="footer" className="border-t border-white/10 bg-[#060b1b] px-6 py-16 lg:px-10">
       <div id="docs" className="mx-auto grid max-w-[1320px] gap-12 md:grid-cols-[1.6fr_repeat(4,1fr)]">
@@ -20,15 +22,17 @@ export default function Footer() {
             <span className="mono border border-emerald/30 px-3 py-2 text-emerald">No live traffic</span>
           </div>
           <div className="mono mt-6 flex gap-5 text-muted">
-            <a href="#top" className="hover:text-white">Telegram</a>
-            <a href="#top" className="hover:text-white">X</a>
-            <a href="#top" className="hover:text-white">LinkedIn</a>
+            <button type="button" onClick={() => open('social')} className="hover:text-white">Telegram</button>
+            <button type="button" onClick={() => open('social')} className="hover:text-white">X</button>
+            <button type="button" onClick={() => open('social')} className="hover:text-white">LinkedIn</button>
           </div>
         </div>
         {cols.map((c) => (
           <div key={c.title}>
             <div className="mono mb-5 text-white/50">{c.title}</div>
-            {c.links.map(([label, href]) => (
+            {c.links.map(([label, href]) => href.startsWith('modal:') ? (
+              <button key={label} type="button" onClick={() => open(href.slice(6))} className="mb-3 block text-left text-sm text-muted hover:text-white">{label}</button>
+            ) : (
               <a key={label} href={href} className="mb-3 block text-sm text-muted hover:text-white">{label}</a>
             ))}
           </div>

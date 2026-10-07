@@ -15,11 +15,13 @@ import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
+import ModalHost from './components/ModalHost';
 import { useReveal } from './hooks';
 
 export default function App() {
   useReveal();
   return (
+    <ModalHost>
     <div className="min-h-screen overflow-x-hidden bg-ground">
       <Intro />
       <Header />
@@ -41,5 +43,6 @@ export default function App() {
       </main>
       <Footer />
     </div>
+    </ModalHost>
   );
 }

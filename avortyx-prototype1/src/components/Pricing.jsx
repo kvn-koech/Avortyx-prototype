@@ -1,15 +1,17 @@
 import Tilt from './Tilt';
+import { useModal } from '../modalContext';
 
 const plans = [
-  { name: 'Starter', price: '$49', unit: '/month', blurb: 'For running your first campaigns end to end', cta: 'Request access', href: '#cta',
+  { name: 'Starter', price: '$49', unit: '/month', blurb: 'For running your first campaigns end to end', cta: 'Request access', kind: 'access',
     features: ['500 routed calls/month', '3 campaigns, 10 buyers', 'Local & toll-free numbers', 'Call log & basic reporting', 'Email support'] },
-  { name: 'Growth', price: '$199', unit: '/month', blurb: 'For networks routing real volume', cta: 'Request access', href: '#cta', popular: true,
+  { name: 'Growth', price: '$199', unit: '/month', blurb: 'For networks routing real volume', cta: 'Request access', kind: 'access', popular: true,
     features: ['5,000 routed calls/month', 'Unlimited campaigns & buyers', 'Intent scoring & real-time bidding', 'Live monitor with barge & whisper', 'TCPA / DNC screening', 'Automated publisher payouts', 'Priority support'] },
-  { name: 'Enterprise', price: 'Custom', unit: '', blurb: 'For agencies and carriers at scale', cta: 'Contact sales', href: 'mailto:team@avortyx.com',
+  { name: 'Enterprise', price: 'Custom', unit: '', blurb: 'For agencies and carriers at scale', cta: 'Contact sales', kind: 'sales',
     features: ['Unlimited routed calls', 'Dedicated number pools', '24/7 dedicated support', 'SLA guarantee', 'Private routing infrastructure', 'SOC 2 & HIPAA controls', 'Custom integrations', 'Dedicated account manager'] },
 ];
 
 export default function Pricing() {
+  const { open } = useModal();
   return (
     <section id="pricing" className="section-wash border-t border-white/10 px-6 py-[clamp(6rem,12vw,10rem)] lg:px-10">
       <div className="mx-auto max-w-[1320px]">
@@ -36,7 +38,7 @@ export default function Pricing() {
                   <span className="ml-1 text-base text-muted">{p.unit}</span>
                 </p>
                 <p className="mt-3 text-sm text-muted">{p.blurb}</p>
-                <a href={p.href} className={'mt-8 rounded-full px-6 py-3 text-center text-sm font-medium transition duration-300 hover:-translate-y-1 ' + (p.popular ? 'bg-gradient-to-r from-cyan to-indigo text-[#071226]' : 'border border-white/20')}>{p.cta}</a>
+                <button type="button" onClick={() => open(p.kind, { plan: p.name })} className={'mt-8 rounded-full px-6 py-3 text-center text-sm font-medium transition duration-300 hover:-translate-y-1 ' + (p.popular ? 'bg-gradient-to-r from-cyan to-indigo text-[#071226]' : 'border border-white/20')}>{p.cta}</button>
                 <ul className="mt-8 space-y-3 text-sm text-muted">
                   {p.features.map((f) => <li key={f} className="flex gap-3"><span className="text-emerald">✓</span>{f}</li>)}
                 </ul>
