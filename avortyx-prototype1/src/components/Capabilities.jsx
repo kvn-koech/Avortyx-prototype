@@ -57,6 +57,31 @@ export default function Capabilities() {
   useCanvasLoop(tile3, draws[2]);
   useCanvasLoop(tile4, draws[3]);
   return (
-    <section id="capabilities" className="section-wash border-t border-white/10 px-6 py-[clamp(6rem,12vw,10rem)] lg:px-10"><div className="mx-auto max-w-[1320px]"><div className="mb-14 flex items-center gap-4 reveal"><span className="mono text-cyan">01 · Capabilities</span><div className="line flex-1" /></div><div className="mb-16 grid gap-10 lg:grid-cols-2"><h2 className="max-w-[16ch] text-5xl font-light leading-[.92] tracking-[-.03em]">Architected for every connection.</h2><p className="max-w-[44ch] self-end text-base leading-8 text-muted">Route, score, and optimize every inbound call through a single high-performance intelligence layer built for pay-per-call teams.</p></div><div className="grid grid-cols-1 border-l border-t border-white/10 md:grid-cols-2 xl:grid-cols-4"> <div className="card border-b border-r p-7"><canvas ref={tile1} className="mb-7 h-16 w-full" /><h3 className="text-lg">Millisecond Precision</h3><p className="mt-3 text-sm leading-7 text-muted">Sub-50ms routing decisions keep qualified callers moving without drop-off.</p></div><div className="card border-b border-r p-7"><canvas ref={tile2} className="mb-7 h-16 w-full" /><h3 className="text-lg">Real-time Adaptation</h3><p className="mt-3 text-sm leading-7 text-muted">Predictive scoring and dynamic traffic shifting respond to live buyer conditions.</p></div><div className="card border-b border-r p-7"><canvas ref={tile3} className="mb-7 h-16 w-full" /><h3 className="text-lg">Compliance Built-in</h3><p className="mt-3 text-sm leading-7 text-muted">TCPA-aware screening, consent signals, and audit trails are part of the route.</p></div><div className="card border-b border-r p-7"><canvas ref={tile4} className="mb-7 h-16 w-full" /><h3 className="text-lg">Predictive Scoring</h3><p className="mt-3 text-sm leading-7 text-muted">Intent models turn every signal into a clearer buyer decision.</p></div></div></div></section>
+    <section id="capabilities" className="section-wash border-t border-white/10 px-6 py-[clamp(6rem,12vw,10rem)] lg:px-10"><div className="mx-auto max-w-[1320px]"><div className="mb-14 flex items-center gap-4 reveal"><span className="mono text-cyan">01 · Capabilities</span><div className="line flex-1" /></div><div className="mb-16 grid gap-10 lg:grid-cols-2"><h2 className="max-w-[16ch] text-5xl font-light leading-[.92] tracking-[-.03em]">Architected for every connection.</h2><p className="max-w-[44ch] self-end text-base leading-8 text-muted">Route, score, and optimize every inbound call through a single high-performance intelligence layer built for pay-per-call teams.</p></div><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-2">
+          <div className="gcard reveal flex flex-col p-8 lg:col-span-2 lg:row-span-2">
+            <div className="mono text-cyan">Latency</div>
+            <div className="mt-4 text-7xl font-extralight"><span className="gradient-text">&lt;50</span><span className="text-3xl text-muted"> ms</span></div>
+            <canvas ref={tile1} className="my-8 min-h-[140px] w-full flex-1" />
+            <h3 className="text-xl">Millisecond Precision</h3>
+            <p className="mt-3 max-w-[40ch] text-sm leading-7 text-muted">Sub-50ms routing decisions keep qualified callers moving without drop-off.</p>
+          </div>
+          <div className="gcard reveal p-7">
+            <canvas ref={tile2} className="mb-7 h-16 w-full" />
+            <h3 className="text-lg">Real-time Adaptation</h3>
+            <p className="mt-3 text-sm leading-7 text-muted">Predictive scoring and dynamic traffic shifting respond to live buyer conditions.</p>
+          </div>
+          <div className="gcard reveal p-7">
+            <canvas ref={tile3} className="mb-7 h-16 w-full" />
+            <h3 className="text-lg">Compliance Built-in</h3>
+            <p className="mt-3 text-sm leading-7 text-muted">TCPA-aware screening, consent signals, and audit trails are part of the route.</p>
+          </div>
+          <div className="gcard reveal flex items-center gap-6 p-7 md:col-span-2">
+            <canvas ref={tile4} className="h-24 w-24 shrink-0" />
+            <div>
+              <h3 className="text-lg">Predictive Scoring</h3>
+              <p className="mt-3 text-sm leading-7 text-muted">Intent models turn every signal into a clearer buyer decision.</p>
+            </div>
+          </div>
+        </div></div></section>
   );
 }

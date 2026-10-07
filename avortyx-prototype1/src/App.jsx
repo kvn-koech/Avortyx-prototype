@@ -15,6 +15,11 @@ import Pricing from './components/Pricing';
 import FAQ from './components/FAQ';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
+import Effects from './components/Effects';
+import Story from './components/Story';
+import Demo from './components/Demo';
+import CommandPalette from './components/CommandPalette';
+import StickyCTA from './components/StickyCTA';
 import ModalHost from './components/ModalHost';
 import { useReveal } from './hooks';
 
@@ -22,15 +27,20 @@ export default function App() {
   useReveal();
   return (
     <ModalHost>
-    <div className="min-h-screen overflow-x-hidden bg-ground">
+    <div className="min-h-screen overflow-x-clip bg-ground">
       <Intro />
+      <Effects />
+      <CommandPalette />
+      <StickyCTA />
       <Header />
       <main id="top">
         <Hero />
         <Trusted />
         <Capabilities />
+        <Story />
         <Platform />
         <HowItWorks />
+        <Demo />
         <Dashboard />
         <LiveRouting />
         <Launch />

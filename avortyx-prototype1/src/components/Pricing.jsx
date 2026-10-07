@@ -30,7 +30,7 @@ export default function Pricing() {
         <div className="grid items-stretch gap-6 lg:grid-cols-3">
           {plans.map((p) => (
             <Tilt key={p.name} max={7} className="reveal">
-              <div className={'relative flex h-full flex-col rounded-[24px] p-8 ' + (p.popular ? 'panel glass luxury-shadow !border-cyan/50' : 'card')}>
+              <div className={'relative flex h-full flex-col rounded-[24px] p-8 ' + (p.popular ? 'panel glass luxury-shadow !border-cyan/50' : 'gcard')}>
                 {p.popular && <span className="mono absolute -top-3 left-8 rounded-full bg-gradient-to-r from-cyan to-indigo px-3 py-1 text-[#071226] [transform:translateZ(30px)]">Most popular</span>}
                 <h3 className="text-xl">{p.name}</h3>
                 <p className="mt-4 text-5xl font-extralight [transform:translateZ(30px)]">

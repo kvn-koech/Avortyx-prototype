@@ -131,7 +131,7 @@ export default function ModalHost({ children }) {
     <ModalContext.Provider value={value}>
       {children}
       {m && (
-        <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-[#030617]/80 p-4 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && close()}>
+        <div data-lenis-prevent className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto bg-[#030617]/80 p-4 backdrop-blur-md" onMouseDown={(e) => e.target === e.currentTarget && close()}>
           <div role="dialog" aria-modal="true" aria-labelledby="modal-title" className="glass relative my-auto w-full max-w-md rounded-3xl p-7 sm:p-9">
             <button type="button" aria-label="Close" onClick={close} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full border border-white/15 text-muted transition hover:text-white">✕</button>
             {info ? (
