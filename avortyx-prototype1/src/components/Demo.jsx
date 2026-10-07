@@ -13,16 +13,28 @@ const INTENTS = [['Browsing', 36], ['Comparing', 63], ['Ready to buy', 88]];
 const STEPS = ['Call received', 'Scoring intent', 'Compliance check', 'Buyer auction', 'Routed'];
 const AT = [0, 450, 950, 1500, 2150];
 
+const KEY = 'avortyx-custom-campaigns';
+const load = () => {
+  try {
+    return JSON.parse(localStorage.getItem(KEY)) || [];
+  } catch {
+    return [];
+  }
+};
+const blank = { name: '', vertical: 'Auto insurance', payout: 45, minScore: 60, states: ['TX'], cap: 500 };
+
 const hash = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
 
-function simulate(vertical, state, intent) {
+function simulate(vertical, state, intent, custom) {
   const h = hash(vertical + state + intent);
   const base = INTENTS.find((i) => i[0] === intent)[1];
   const score = Math.min(99, base + (h % 9));
-  const bids = VERTICALS[vertical]
-    .map(([name, pay], k) => ({ name, bid: Math.round(pay * (0.78 + score / 140) * 100 + ((h >> (k + 2)) % 400)) / 100 }))
+  const mine = custom.filter((c) => c.vertical === vertical && c.states.includes(state) && score >= c.minScore);
+  const skipped = custom.filter((c) => c.vertical === vertical && !mine.includes(c)).map((c) => c.name);
+  const bids = [...VERTICALS[vertical], ...mine.map((c) => [c.name, c.payout, true])]
+    .map(([name, pay, own], k) => ({ name, own, bid: Math.round(pay * (0.78 + score / 140) * 100 + ((h >> (k + 2)) % 400)) / 100 }))
     .sort((a, b) => b.bid - a.bid);
-  return { score, bids, ms: 11 + (h % 9), conn: (1 + (h % 7) / 10).toFixed(1) };
+  return { score, bids, skipped, ms: 11 + (h % 9), conn: (1 + (h % 7) / 10).toFixed(1) };
 }
 
 const sel = 'w-full rounded-xl border border-white/15 bg-[#0b1330] px-4 py-3 text-sm text-white outline-none focus:border-cyan/60';
@@ -35,12 +47,32 @@ export default function Demo() {
   const [stage, setStage] = useState(-1);
   const [res, setRes] = useState(null);
   const timers = useRef([]);
+  const [custom, setCustom] = useState(load);
+  const [form, setForm] = useState(blank);
+  const [err, setErr] = useState('');
+  const saveAll = (list) => {
+    setCustom(list);
+    localStorage.setItem(KEY, JSON.stringify(list));
+  };
+  const toggleState = (st) =>
+    setForm((f) => ({ ...f, states: f.states.includes(st) ? f.states.filter((x) => x !== st) : [...f.states, st] }));
+  const addCampaign = (e) => {
+    e.preventDefault();
+    const name = form.name.trim();
+    if (!name) return setErr('Give your campaign a name.');
+    if (!form.states.length) return setErr('Select at least one state.');
+    if (custom.some((c) => c.name.toLowerCase() === name.toLowerCase())) return setErr('You already have a campaign with that name.');
+    saveAll([...custom, { ...form, name, id: Date.now() }]);
+    setVertical(form.vertical);
+    setForm({ ...blank, vertical: form.vertical });
+    setErr('');
+  };
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const run = () => {
     timers.current.forEach(clearTimeout);
-    setRes(simulate(vertical, state, intent));
+    setRes(simulate(vertical, state, intent, custom));
     setStage(0);
     timers.current = AT.slice(1).map((ms, i) => setTimeout(() => setStage(i + 1), ms));
   };
@@ -116,7 +148,7 @@ export default function Demo() {
                   <ul className="mt-3 space-y-2">
                     {res.bids.map((b, k) => (
                       <li key={b.name} className="flex items-center gap-3 text-sm">
-                        <span className="w-36 truncate">{b.name}</span>
+                        <span className="w-36 truncate">{b.name}{b.own && <span className="mono ml-1 text-cyan">you</span>}</span>
                         <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/10">
                           <span className="block h-full rounded-full bg-gradient-to-r from-cyan to-indigo transition-all duration-700" style={{ width: (b.bid / res.bids[0].bid) * 100 + '%' }} />
                         </span>
@@ -124,6 +156,9 @@ export default function Demo() {
                       </li>
                     ))}
                   </ul>
+                  {done && res.skipped.length > 0 && (
+                    <p className="mono mt-3 text-muted">Not eligible this call: {res.skipped.join(', ')}</p>
+                  )}
                   {done && (
                     <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
                       <div className="text-sm">Connected to <span className="text-emerald">{res.bids[0].name}</span> in {res.conn}s · payout <span className="text-emerald">${res.bids[0].bid.toFixed(2)}</span></div>
@@ -135,6 +170,62 @@ export default function Demo() {
             </div>
           </div>
         </div>
+        <form onSubmit={addCampaign} className="gcard reveal mt-6 p-7">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <div className="mono text-cyan">Custom campaign</div>
+              <h3 className="mt-2 text-xl">Add your own campaign to the auction</h3>
+            </div>
+            <p className="max-w-[40ch] text-xs leading-6 text-muted">Saved in this browser only. Your campaign bids alongside the sample buyers whenever the vertical, state and score rules match.</p>
+          </div>
+          <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <label className="block text-xs text-muted">Campaign name
+              <input value={form.name} maxLength={40} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Summit Roofing – Spring" className={sel + ' mt-1.5'} />
+            </label>
+            <label className="block text-xs text-muted">Vertical
+              <select value={form.vertical} onChange={(e) => setForm({ ...form, vertical: e.target.value })} className={sel + ' mt-1.5'}>
+                {Object.keys(VERTICALS).map((v) => <option key={v}>{v}</option>)}
+              </select>
+            </label>
+            <label className="block text-xs text-muted">Base payout per call ($)
+              <input type="number" min="5" max="500" value={form.payout} onChange={(e) => setForm({ ...form, payout: Math.max(5, Math.min(500, +e.target.value || 0)) })} className={sel + ' mt-1.5'} />
+            </label>
+            <label className="block text-xs text-muted">Daily call cap
+              <input type="number" min="1" max="100000" value={form.cap} onChange={(e) => setForm({ ...form, cap: Math.max(1, +e.target.value || 1) })} className={sel + ' mt-1.5'} />
+            </label>
+          </div>
+          <div className="mt-5 grid gap-5 lg:grid-cols-2">
+            <label className="block text-xs text-muted">Minimum intent score: <span className="text-cyan">{form.minScore}</span>
+              <input type="range" min="0" max="95" value={form.minScore} onChange={(e) => setForm({ ...form, minScore: +e.target.value })} className="mt-3 w-full accent-[#57c3ff]" />
+            </label>
+            <div>
+              <div className="text-xs text-muted">Target states</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {STATES.map((st) => (
+                  <button key={st} type="button" onClick={() => toggleState(st)} className={'mono rounded-full border px-3 py-1.5 transition ' + (form.states.includes(st) ? 'border-cyan/60 bg-cyan/10 text-cyan' : 'border-white/15 text-muted hover:text-white')}>{st}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <button type="submit" className="rounded-full bg-gradient-to-r from-cyan to-indigo px-7 py-3 text-sm font-medium text-[#071226] transition hover:-translate-y-0.5">Add campaign</button>
+            {err && <span role="alert" className="text-sm text-[#ff8a8a]">{err}</span>}
+          </div>
+          {custom.length > 0 && (
+            <ul className="mt-6 grid gap-3 md:grid-cols-2">
+              {custom.map((c) => (
+                <li key={c.id} className="flex items-center gap-4 rounded-xl border border-white/10 px-4 py-3">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm">{c.name}</div>
+                    <div className="mono mt-1 truncate text-muted">{c.vertical} · ${c.payout} · score ≥ {c.minScore} · {c.states.join(' ')} · cap {c.cap}/day</div>
+                  </div>
+                  <button type="button" onClick={() => { setVertical(c.vertical); setState(c.states[0]); setIntent('Ready to buy'); }} className="mono text-cyan hover:underline">Use</button>
+                  <button type="button" aria-label={'Remove ' + c.name} onClick={() => saveAll(custom.filter((x) => x.id !== c.id))} className="text-muted hover:text-white">✕</button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </form>
       </div>
     </section>
   );
