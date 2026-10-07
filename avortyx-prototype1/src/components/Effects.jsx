@@ -122,7 +122,7 @@ export default function Effects() {
         { threshold: 0.2 },
       );
       heads.forEach((h) => {
-        splitWords(h);
+        if (!h.classList.contains('wsplit')) splitWords(h);
         h.classList.add('wsplit');
         io.observe(h);
       });
