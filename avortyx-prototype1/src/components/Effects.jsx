@@ -58,19 +58,7 @@ export default function Effects() {
 
     const fine = matchMedia('(pointer:fine)').matches;
     if (fine) {
-      const el = spot.current;
-      let tx = innerWidth / 2, ty = innerHeight / 3, x = tx, y = ty, raf;
-      const loop = () => {
-        x += (tx - x) * 0.12;
-        y += (ty - y) * 0.12;
-        el.style.transform = 'translate3d(' + x + 'px,' + y + 'px,0)';
-        raf = requestAnimationFrame(loop);
-      };
-      raf = requestAnimationFrame(loop);
       const move = (e) => {
-        tx = e.clientX;
-        ty = e.clientY;
-        el.classList.add('on');
         const g = e.target.closest?.('.gcard');
         if (g) {
           const r = g.getBoundingClientRect();
@@ -78,11 +66,10 @@ export default function Effects() {
           g.style.setProperty('--my', e.clientY - r.top + 'px');
         }
       };
-      const leave = () => el.classList.remove('on');
+      const leave = () => {};
       document.addEventListener('pointermove', move);
       document.documentElement.addEventListener('pointerleave', leave);
       cleanups.push(() => {
-        cancelAnimationFrame(raf);
         document.removeEventListener('pointermove', move);
         document.documentElement.removeEventListener('pointerleave', leave);
       });
@@ -132,5 +119,5 @@ export default function Effects() {
     return () => cleanups.forEach((f) => f());
   }, []);
 
-  return <div ref={spot} className="spotlight" aria-hidden="true" />;
+  return null;
 }

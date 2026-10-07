@@ -6,56 +6,89 @@ import { useModal } from '../modalContext';
 
 const COLORS = ['#6c72ff', '#57c3ff', '#00ca72'];
 
-function drawBands(c, ctx, d, s) {
-  ctx.clearRect(0, 0, c.width, c.height);
-  s.t += 0.004;
-  COLORS.forEach((col, k) => {
-    ctx.strokeStyle = col;
-    ctx.globalAlpha = 0.16;
-    ctx.lineWidth = 38 * d;
-    ctx.beginPath();
-    for (let i = 0; i < c.width; i += 3) {
-      const y = c.height * (0.42 + k * 0.11) + Math.sin(i * 0.003 + s.t * (k + 1)) * c.height * 0.12 + Math.sin(i * 0.009 + s.t) * 30 * d;
-      if (i) ctx.lineTo(i, y); else ctx.moveTo(i, y);
-    }
-    ctx.stroke();
-  });
-}
 
-function drawGraph(c, x, q, s) {
-  x.clearRect(0, 0, c.width, c.height);
-  s.t += 0.01;
-  for (let i = 0; i < 28; i++) {
-    const a = i * 0.92 + s.t;
-    const rx = c.width * 0.35 + Math.sin(i * 2) * c.width * 0.12;
-    const ry = c.height * 0.32 + Math.cos(i) * c.height * 0.2;
-    const nx = c.width / 2 + Math.cos(a) * rx;
-    const ny = c.height / 2 + Math.sin(a) * ry;
-    x.strokeStyle = i % 2 ? '#6c72ff' : '#57c3ff';
-    x.globalAlpha = 0.25;
-    x.beginPath();
-    x.moveTo(c.width / 2, c.height / 2);
-    x.lineTo(nx, ny);
-    x.stroke();
-    x.fillStyle = '#57c3ff';
-    x.globalAlpha = 0.8;
-    x.beginPath();
-    x.arc(nx, ny, 2 * q, 0, 7);
-    x.fill();
-    const u = (s.t * 0.9 + i * 0.37) % 1;
-    x.fillStyle = '#fff';
-    x.globalAlpha = 1 - u;
-    x.beginPath();
-    x.arc(c.width / 2 + (nx - c.width / 2) * u, c.height / 2 + (ny - c.height / 2) * u, 1.8 * q, 0, 7);
-    x.fill();
-    if (u > 0.92) {
-      x.strokeStyle = '#00ca72';
-      x.globalAlpha = 0.7;
-      x.beginPath();
-      x.arc(nx, ny, (4 + (u - 0.92) * 120) * q, 0, 7);
-      x.stroke();
+function drawGraph(c, ctx, dpr, s) {
+  ctx.clearRect(0, 0, c.width, c.height);
+  if (!s.init) {
+    s.init = true;
+    s.nodes = Array.from({ length: 55 }, () => ({
+      x: (Math.random() - 0.5) * 2,
+      y: (Math.random() - 0.5) * 2,
+      z: (Math.random() - 0.5) * 2,
+      label: Math.random() > 0.85 ? `US-${Math.floor(Math.random()*90 + 10)}` : null
+    }));
+    s.edges = [];
+    for (let i = 0; i < s.nodes.length; i++) {
+      for (let j = i + 1; j < s.nodes.length; j++) {
+        let n1 = s.nodes[i], n2 = s.nodes[j];
+        if (Math.hypot(n1.x - n2.x, n1.y - n2.y, n1.z - n2.z) < 0.7) {
+          s.edges.push([i, j]);
+        }
+      }
+    }
+    s.packets = [];
+  }
+  
+  s.t += 0.003;
+  if (Math.random() < 0.25) {
+    let edge = s.edges[Math.floor(Math.random() * s.edges.length)];
+    if (edge) {
+      s.packets.push({
+        e: edge, p: 0,
+        speed: 0.015 + Math.random() * 0.03,
+        color: Math.random() > 0.3 ? '#00ca72' : '#57c3ff'
+      });
     }
   }
+
+  const cx = c.width / 2, cy = c.height / 2;
+  const radius = Math.min(cx, cy) * 0.85;
+  const cosT = Math.cos(s.t), sinT = Math.sin(s.t);
+  const cosX = Math.cos(s.t * 0.6), sinX = Math.sin(s.t * 0.6);
+
+  const projectedNodes = s.nodes.map(node => {
+    let x1 = node.x * cosT - node.z * sinT;
+    let z1 = node.z * cosT + node.x * sinT;
+    let y2 = node.y * cosX - z1 * sinX;
+    let z2 = z1 * cosX + node.y * sinX;
+    let scale = 2.8 / (2.8 + z2);
+    return { x: cx + x1 * radius * scale, y: cy + y2 * radius * scale, s: scale, z: z2, label: node.label };
+  });
+
+  ctx.lineWidth = 1 * dpr;
+  for (let [i, j] of s.edges) {
+    let p1 = projectedNodes[i], p2 = projectedNodes[j];
+    let avgZ = (p1.z + p2.z) / 2;
+    ctx.strokeStyle = `rgba(108, 114, 255, ${Math.max(0.02, 0.18 - avgZ * 0.15)})`;
+    ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+  }
+
+  ctx.font = `${10 * dpr}px ui-monospace, SFMono-Regular, Menlo, Monaco, monospace`;
+  for (let p of projectedNodes) {
+    let alpha = Math.max(0.05, 0.5 - p.z * 0.3);
+    ctx.fillStyle = `rgba(87, 195, 255, ${alpha})`;
+    ctx.beginPath(); ctx.arc(p.x, p.y, 1.5 * dpr * p.s, 0, 7); ctx.fill();
+    if (p.label && p.z < 0) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${Math.min(0.8, alpha + 0.2)})`;
+      ctx.fillText(p.label, p.x + 6 * dpr, p.y - 2 * dpr);
+    }
+  }
+
+  for (let i = s.packets.length - 1; i >= 0; i--) {
+    let pkt = s.packets[i];
+    pkt.p += pkt.speed;
+    if (pkt.p >= 1) { s.packets.splice(i, 1); continue; }
+    let p1 = projectedNodes[pkt.e[0]], p2 = projectedNodes[pkt.e[1]];
+    let px = p1.x + (p2.x - p1.x) * pkt.p, py = p1.y + (p2.y - p1.y) * pkt.p;
+    let ps = p1.s + (p2.s - p1.s) * pkt.p;
+    
+    ctx.fillStyle = pkt.color;
+    ctx.globalAlpha = 1;
+    ctx.beginPath(); ctx.arc(px, py, 2.2 * dpr * ps, 0, 7); ctx.fill();
+    ctx.globalAlpha = 0.3;
+    ctx.beginPath(); ctx.arc(px, py, 6 * dpr * ps, 0, 7); ctx.fill();
+  }
+  ctx.globalAlpha = 1;
 }
 
 const NAV = ['Dashboard', 'Traffic Streams', 'Predictive Routing', 'Buyers & Endpoints', 'Analytics', 'Settings'];
@@ -90,11 +123,77 @@ function useLive() {
 export default function Hero() {
   const { open } = useModal();
   const live = useLive();
-  const heroRef = useRef(null);
   const graphRef = useRef(null);
-  useCanvasLoop(heroRef, drawBands);
   useCanvasLoop(graphRef, drawGraph);
   return (
-    <section className="grid-bg section-wash relative flex min-h-[100svh] items-center overflow-hidden px-6 pb-[clamp(3rem,6vw,5rem)] pt-[clamp(6rem,8vw,7.5rem)] lg:px-10"><canvas ref={heroRef} className="absolute inset-0 h-full w-full opacity-60" /><div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-[120px] pointer-events-none" aria-hidden="true" /><div className="premium-glow" aria-hidden="true" /><div className="hero-fade absolute inset-0" /><div className="relative mx-auto grid w-full max-w-[1320px] -mt-2 lg:-mt-6 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10"><div className="reveal"><h1 className="max-w-3xl text-[clamp(3.2rem,6.2vw,7rem)] font-bold leading-[.84] tracking-normal text-slate-50">Routing built for <em className="gradient-text font-bold not-italic">performance.</em></h1><p className="mt-9 max-w-[38ch] text-lg font-normal leading-relaxed text-slate-300">High-frequency decision engine for performance marketing. Distribute calls and leads with millisecond precision, predictive intent scoring, and dynamic payout optimization.</p><div className="mt-10 flex flex-wrap items-center gap-7"><button type="button" id="hero-demo-link" onClick={() => open('demo')} className="relative overflow-hidden rounded-full p-[1px] shadow-lg shadow-cyan/20 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo/40 group"><span className="absolute inset-0 bg-gradient-to-r from-cyan via-indigo to-purple-500 opacity-80 group-hover:opacity-100 transition-opacity duration-500"></span><span className="relative flex items-center justify-center rounded-full bg-[#0a0e17] px-8 py-4 text-sm font-semibold text-white transition-all duration-500 group-hover:bg-opacity-0 group-hover:text-white">Book Demo</span></button><a id="hero-explore-link" href="#capabilities" className="flex items-center gap-2 text-sm font-medium text-cyan hover:text-white transition-colors">Explore Platform <Icon icon="lucide:arrow-right" className="transition-transform group-hover:translate-x-1" /></a></div><div className="mt-10 flex flex-wrap items-center gap-3"><span className="mono text-muted">Screened on every call</span><span className="mono rounded-full border border-emerald/30 px-3 py-1 text-emerald">✓ TCPA</span><span className="mono rounded-full border border-emerald/30 px-3 py-1 text-emerald">✓ DNC</span><span className="mono rounded-full border border-emerald/30 px-3 py-1 text-emerald">✓ VoIP</span></div></div><Tilt max={9}><div className="panel glass luxury-shadow floating reveal relative perspective-1000 overflow-hidden rounded-[28px] p-4" style={{ transitionDelay: ".15s", transformStyle: "preserve-3d" }}><div className="mb-4 flex items-center gap-2 border-b border-white/10 pb-3"><span className="h-2.5 w-2.5 rounded-full bg-rose-400" /><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /><span className="h-2.5 w-2.5 rounded-full bg-emerald" /><span className="ml-4 font-mono text-[10px] text-indigo">avortyx-en2Z6&amp;VRNUT03B7T5AR</span><span className="ml-auto text-cyan">•••</span></div><div className="grid grid-cols-1 gap-4 sm:grid-cols-[132px_1fr]"><aside className="space-y-2">{NAV.map((n, i) => (<div key={n} className={'rounded-lg px-3 py-3 text-sm transition-colors duration-500 ' + (i === live.tab ? 'border border-indigo/40 bg-indigo/15 font-semibold text-white' : 'border border-transparent text-slate-300 hover:text-white')}>{i === live.tab ? '▣' : '□'} &nbsp; {n}</div>))}</aside><div><div className="grid gap-3 sm:grid-cols-3">{[['Total Routed Signals', live.signals.toLocaleString(), (live.delta >= 0 ? '+' : '') + live.delta.toFixed(1) + '% vs last hour'], ['Routing Latency', live.latency.toFixed(1) + ' ms', 'Ultra-low performance'], ['Match Win Rate', live.win.toFixed(1) + '%', 'Optimal distribution']].map(([l, v, n]) => (<div key={l} className="glass rounded-2xl border-white/10 p-3 sm:p-4 transition duration-300 hover:-translate-y-1 overflow-hidden"><div className="text-xs font-medium text-slate-300 whitespace-nowrap truncate">{l}</div><div className="mt-1.5 text-xl font-semibold text-white font-mono tabular-nums tracking-normal drop-shadow-sm whitespace-nowrap truncate">{v}</div><div className="mt-1 text-[11px] font-medium text-emerald-400 whitespace-nowrap truncate">{n}</div></div>))}</div><div className="relative mt-3 h-[235px] overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-950/80 shadow-inner p-5"><div className="relative z-10"><div className="text-xl font-semibold text-white">Global Signal Analytics</div><div className="mt-2 text-xs font-medium text-slate-300">Real-time endpoint matching and data flow</div></div><div className="absolute inset-x-4 bottom-3 z-10 flex items-center justify-between gap-3 rounded-lg border border-white/20 bg-[#060b1b]/90 px-4 py-3 text-sm backdrop-blur shadow-xl"><span className="flex items-center gap-2 font-medium text-emerald-400"><span className="ticker-dot h-2 w-2 rounded-full bg-emerald-400" />Live</span><span key={live.feed} className="row-in truncate font-normal text-white">{live.feed}</span><span className="font-mono font-medium tabular-nums text-cyan-300 whitespace-nowrap">{live.cps} calls/s</span></div><canvas ref={graphRef} className="absolute inset-0 h-full w-full" /></div></div></div></div></Tilt></div></section>
+    <section className="grid-bg relative flex min-h-[100svh] items-center overflow-hidden px-6 pb-[clamp(3rem,6vw,5rem)] pt-[clamp(6rem,8vw,7.5rem)] lg:px-10">
+
+      <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-[120px] pointer-events-none" aria-hidden="true" />
+      <div className="premium-glow" aria-hidden="true" />
+      <div className="relative mx-auto grid w-full max-w-[1320px] -mt-2 lg:-mt-6 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+        <div className="reveal">
+          <h1 className="max-w-3xl text-[clamp(2.8rem,5.2vw,6rem)] font-medium leading-[.88] tracking-tight text-slate-50">Routing built for <em className="gradient-text font-semibold not-italic">performance.</em></h1>
+          <p className="mt-9 max-w-[38ch] text-lg font-normal leading-relaxed text-slate-400">High-frequency decision engine for performance marketing. Distribute calls and leads with millisecond precision, predictive intent scoring, and dynamic payout optimization.</p>
+          <div className="mt-10 flex flex-wrap items-center gap-7">
+            <button type="button" id="hero-demo-link" onClick={() => open('demo')} className="relative overflow-hidden rounded-full p-[1px] shadow-lg shadow-cyan/20 transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo/40 group">
+              <span className="absolute inset-0 bg-gradient-to-r from-cyan via-indigo to-purple-500 opacity-80 group-hover:opacity-100 transition-opacity duration-500"></span>
+              <span className="relative flex items-center justify-center rounded-full bg-[#0a0e17] px-8 py-4 text-sm font-semibold text-white transition-all duration-500 group-hover:bg-opacity-0 group-hover:text-white">Book Demo</span>
+            </button>
+            <a id="hero-explore-link" href="#capabilities" className="flex items-center gap-2 text-sm font-medium text-cyan hover:text-white transition-colors">
+              Explore Platform <Icon icon="lucide:arrow-right" className="transition-transform group-hover:translate-x-1" />
+            </a>
+          </div>
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            <span className="mono text-muted">Screened on every call</span>
+            <span className="mono rounded-full border border-emerald/30 px-3 py-1 text-emerald">✓ TCPA</span>
+            <span className="mono rounded-full border border-emerald/30 px-3 py-1 text-emerald">✓ DNC</span>
+            <span className="mono rounded-full border border-emerald/30 px-3 py-1 text-emerald">✓ VoIP</span>
+          </div>
+        </div>
+          <div className="panel glass luxury-shadow floating reveal relative overflow-hidden rounded-[24px] p-3 lg:p-4" style={{ transitionDelay: ".15s", WebkitFontSmoothing: "antialiased", textRendering: "optimizeLegibility" }}>
+            <div className="mb-3 flex items-center gap-2 border-b border-white/10 pb-3">
+              <span className="h-2.5 w-2.5 rounded-full bg-rose-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
+              <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+              <span className="ml-4 font-mono text-[10px] text-indigo-300 tracking-wider">avortyx-en2Z6&amp;VRNUT03B7T5AR</span>
+              <span className="ml-auto text-cyan-300">•••</span>
+            </div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-[120px_1fr]">
+              <aside className="space-y-1.5">
+                {NAV.map((n, i) => (
+                  <div key={n} className={'rounded-lg px-2.5 py-2 text-[13px] transition-colors duration-500 ' + (i === live.tab ? 'border border-indigo/40 bg-indigo/20 font-medium text-white' : 'border border-transparent text-slate-50 hover:text-white')}>
+                    {i === live.tab ? '▣' : '□'} &nbsp; {n}
+                  </div>
+                ))}
+              </aside>
+              <div>
+                <div className="grid gap-2.5 sm:grid-cols-3">
+                  {[['Total Routed Signals', live.signals.toLocaleString(), (live.delta >= 0 ? '+' : '') + live.delta.toFixed(1) + '% vs last hour'], ['Routing Latency', live.latency.toFixed(1) + ' ms', 'Ultra-low performance'], ['Match Win Rate', live.win.toFixed(1) + '%', 'Optimal distribution']].map(([l, v, n]) => (
+                    <div key={l} className="glass rounded-xl border-white/10 p-3 sm:p-4 transition duration-300 hover:-translate-y-1 overflow-hidden">
+                      <div className="text-[11.5px] font-normal text-white whitespace-nowrap truncate">{l}</div>
+                      <div className="mt-1 text-lg font-medium text-white font-mono tabular-nums tracking-wide whitespace-nowrap truncate">{v}</div>
+                      <div className="mt-0.5 text-[10px] font-normal text-emerald-400 whitespace-nowrap truncate">{n}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="relative mt-2.5 h-[200px] overflow-hidden rounded-xl border border-white/10 bg-gradient-to-b from-black to-[#030612] shadow-inner p-4">
+                  <div className="relative z-10">
+                    <div className="text-lg font-medium text-white tracking-wide">Global Signal Analytics</div>
+                    <div className="mt-1 text-[11.5px] font-normal text-white">Real-time endpoint matching and data flow</div>
+                  </div>
+                  <div className="absolute inset-x-3 bottom-3 z-10 flex items-center justify-between gap-3 rounded-lg border border-white/20 bg-[#0a0f1d]/90 px-3 py-2 text-[13px] backdrop-blur shadow-xl">
+                    <span className="flex items-center gap-2 font-normal text-emerald-400">
+                      <span className="ticker-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />Live
+                    </span>
+                    <span key={live.feed} className="row-in truncate font-normal text-white">{live.feed}</span>
+                    <span className="font-mono font-normal tabular-nums text-cyan-300 whitespace-nowrap">{live.cps} calls/s</span>
+                  </div>
+                  <canvas ref={graphRef} className="absolute inset-0 h-full w-full opacity-80" />
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    </section>
   );
 }
