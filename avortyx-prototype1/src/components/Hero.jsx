@@ -206,7 +206,7 @@ export default function Hero() {
       <canvas ref={streamRef} className="absolute inset-0 h-full w-full opacity-[0.35]" />
       <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-cyan-400/10 blur-[120px] pointer-events-none" aria-hidden="true" />
       <div className="premium-glow" aria-hidden="true" />
-      <div className="relative mx-auto grid w-full max-w-[1320px] -mt-2 lg:-mt-6 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+      <div className="relative mx-auto grid w-full max-w-[1320px] mt-2 lg:mt-2 items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
         <div className="reveal">
           <h1 className="max-w-3xl text-[clamp(2.8rem,5.2vw,6rem)] font-medium leading-[.88] tracking-tight text-slate-50">Routing built for <em className="gradient-text font-semibold not-italic">performance.</em></h1>
           <p className="mt-9 max-w-[38ch] text-lg font-normal leading-relaxed text-slate-400">High-frequency decision engine for performance marketing. Distribute calls and leads with millisecond precision, predictive intent scoring, and dynamic payout optimization.</p>
