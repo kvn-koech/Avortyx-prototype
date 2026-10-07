@@ -20,6 +20,7 @@ import Story from './components/Story';
 import Demo from './components/Demo';
 import CommandPalette from './components/CommandPalette';
 import StickyCTA from './components/StickyCTA';
+import ChatAssistant from './components/ChatAssistant';
 import ModalHost from './components/ModalHost';
 import { useReveal } from './hooks';
 
@@ -32,6 +33,7 @@ export default function App() {
       <Effects />
       <CommandPalette />
       <StickyCTA />
+      <ChatAssistant />
       <Header />
       <main id="top">
         <Hero />
